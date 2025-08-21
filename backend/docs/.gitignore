@@ -1,0 +1,15 @@
+# Ignorar arquivos com essas extensões
+*.doc
+*.docx
+*.pdf
+*.jpeg
+*.json
+*.jpg
+*.xml
+*.csv
+*.txt
+
+# Ignorar pastas
+**/*.bak
+**/*.swp
+**/*.swo

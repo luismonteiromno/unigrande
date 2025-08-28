@@ -8,6 +8,7 @@
 *.xml
 *.csv
 *.txt
+*.env
 
 # Ignorar pastas
 **/*.bak

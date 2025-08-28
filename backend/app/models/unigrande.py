@@ -1,6 +1,7 @@
 from tortoise import fields, models
 from datetime import datetime
 
+
 class PeriodoLetivo(models.Model):
     id: int = fields.IntField(pk=True)
     ano: int = fields.IntField()
@@ -14,7 +15,7 @@ class PeriodoLetivo(models.Model):
         indexes = (('ano', 'semestre'),)
 
 
-class Professor(models.Model)
+class Professor(models.Model):
     pass
 
 

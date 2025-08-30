@@ -230,5 +230,8 @@ class Historico(models.Model):
     class Meta:
         table = 'historicos'
         unique_together = (
-            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),)
-        indexes = (('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),)
+            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),
+        )
+        indexes = (
+            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),
+        )

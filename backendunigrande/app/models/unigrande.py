@@ -104,7 +104,9 @@ class Matriz(models.Model):
         unique_together = (
             ('codigo_disciplina', 'codigo_curso', 'periodo_letivo'),
         )
-        indexes = (('codigo_disciplina', 'codigo_curso', 'periodo_letivo'),)
+        indexes = (
+            ('codigo_disciplina', 'codigo_curso', 'periodo_letivo'),
+        )
 
 
 class Turma(models.Model):
@@ -137,7 +139,9 @@ class Turma(models.Model):
         table = 'turmas'
         unique_together = (
             ('ano', 'codigo_disciplina', 'idt_professor'),)
-        indexes = (('ano', 'codigo_disciplina', 'idt_professor'),)
+        indexes = (
+            ('ano', 'codigo_disciplina', 'idt_professor'),
+        )
 
 
 class Aluno(models.Model):
@@ -195,8 +199,11 @@ class Matricula(models.Model):
     class Meta:
         table = 'matriculas'
         unique_together = (
-            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),)
-        indexes = (('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),)
+            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),
+        )
+        indexes = (
+            ('ano', 'semestre', 'matricula_aluno', 'codigo_disciplina'),
+        )
 
 
 class Historico(models.Model):

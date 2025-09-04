@@ -1,6 +1,6 @@
 services:
-  frontunigrande:
-    build: ./frontunigrande
+  frontendunigrande:
+    build: ./frontendunigrande
     ports:
       - "8089:80"
     environment:
@@ -10,12 +10,12 @@ services:
     env_file:
       - .env
     volumes:
-      - ./frontunigrande:/var/www/unigrande/frontunigrande
+      - ./frontendunigrande:/var/www/unigrande/frontendunigrande
     restart: always
-    container_name: frontunigrande
+    container_name: frontendunigrande
     networks:
       - unigrande-network
- 
+
   backendunigrande:
     build: ./backendunigrande
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 5000
@@ -34,11 +34,11 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - dbunigrande
     networks:
       - unigrande-network
- 
-  db:
+
+  dbunigrande:
     build:
       context: ./backendunigrande/db
       dockerfile: Dockerfile
@@ -54,11 +54,11 @@ services:
     ports:
       - "5431:5432"
     restart: always
-    container_name: db_postgres
+    container_name: dbunigrande
     networks:
       - unigrande-network
- 
-  pgadmin:
+
+  pgadminunigrande:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
@@ -66,13 +66,13 @@ services:
     ports:
       - "5051:80"
     restart: always
-    container_name: pgadmin
+    container_name: pgadminunigrande
     networks:
       - unigrande-network
-     
+      
 volumes:
   postgres_data:
- 
+
 networks:
   unigrande-network:
     driver: bridge

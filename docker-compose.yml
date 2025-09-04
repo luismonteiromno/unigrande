@@ -1,6 +1,6 @@
 services:
-  frontend:
-    build: ./frontend
+  frontunigrande:
+    build: ./frontunigrande
     ports:
       - "8089:80"
     environment:
@@ -10,21 +10,21 @@ services:
     env_file:
       - .env
     volumes:
-      - ./frontend:/var/www/unigrande/frontend
+      - ./frontunigrande:/var/www/unigrande/frontunigrande
     restart: always
-    container_name: frontend
+    container_name: frontunigrande
     networks:
       - unigrande-network
  
-  backend:
-    build: ./backend
+  backendunigrande:
+    build: ./backendunigrande
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 5000
     ports:
       - "5015:5000"
     volumes:
-      - ./backend:/usr/src/app
+      - ./backendunigrande:/usr/src/app
     restart: always
-    container_name: backend
+    container_name: backendunigrande
     environment:
       ENVIRONMENT: ${ENVIRONMENT}
       TESTING: ${TESTING}
@@ -40,7 +40,7 @@ services:
  
   db:
     build:
-      context: ./backend/db
+      context: ./backendunigrande/db
       dockerfile: Dockerfile
     environment:
       POSTGRES_DB: ${POSTGRES_DB}

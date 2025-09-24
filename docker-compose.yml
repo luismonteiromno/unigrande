@@ -56,7 +56,9 @@ services:
     restart: always
     container_name: dbunigrande
     networks:
-      - unigrande-network
+      unigrande-network:
+        aliases:
+          - db   # 🔹 aqui sim
 
   pgadminunigrande:
     image: dpage/pgadmin4

@@ -1,9 +1,11 @@
+#!/bin/bash
+
 echo "Inicializando o postgreSQL"
 
-while ! nc -z db 5432; do
+while ! nc -z dbunigrande 5432; do
     sleep 0.1
 done
 
 echo "PostgreSQL inicializado"
 
-echo "$@"
+dos2unix backendunigrande/entrypoint.sh

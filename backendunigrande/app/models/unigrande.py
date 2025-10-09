@@ -53,7 +53,8 @@ class Curso(models.Model):
     idt_professor: fields.ForeignKeyField['Professor'] = fields.ForeignKeyField(
         'models.Professor',
         related_name='cursos',
-        on_delete=fields.CASCADE
+        null=True,
+        on_delete=fields.SET_NULL,
     )
 
     class Meta:

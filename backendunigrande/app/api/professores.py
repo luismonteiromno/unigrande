@@ -29,7 +29,7 @@ async def error_500(e: Exception):
 # Professor
 # ----------------------------------------------------------------------
 @router.post("/create-professor", response_model=ProfessorResponse, status_code=201)
-async def create_curso(payload: ProfessorCreate):
+async def create_professor(payload: ProfessorCreate):
     async with in_transaction():
         try:
             obj = await ProfessorService.create(payload)
@@ -40,19 +40,19 @@ async def create_curso(payload: ProfessorCreate):
             await error_500(e)
 
 
-@router.get("/buscar-curso/{id}", response_model=ProfessorResponse)
-async def get_curso(id: int):
+@router.get("/buscar-professores/{id}", response_model=ProfessorResponse)
+async def get_professores(id: int):
     try:
         obj = await ProfessorService.get(id)
         return await ProfessorService.response(obj)
     except (DoesNotExist, MultipleObjectsReturned):
-        raise HTTPException(404, "Curso não encontrado")
+        raise HTTPException(404, "Professor não encontrado")
     except Exception as e:
         await error_500(e)
 
 
-@router.get("/listar-cursos", response_model=List[ProfessorResponse])
-async def list_cursos():
+@router.get("/listar-professores", response_model=List[ProfessorResponse])
+async def list_professores():
     try:
         rows = await ProfessorService.list_all()
         return [await ProfessorService.response(x) for x in rows]
@@ -60,8 +60,8 @@ async def list_cursos():
         await error_500(e)
 
 
-@router.put("/atualizar-curso/{id}", response_model=ProfessorResponse)
-async def update_curso(id: int, payload: ProfessorUpdate):
+@router.put("/atualizar-professor/{id}", response_model=ProfessorResponse)
+async def update_professor(id: int, payload: ProfessorUpdate):
     async with in_transaction():
         try:
             obj = await ProfessorService.update(id, payload)
@@ -72,8 +72,8 @@ async def update_curso(id: int, payload: ProfessorUpdate):
             await error_500(e)
 
 
-@router.delete("/delete-curso/{id}", status_code=204)
-async def delete_curso(id: int):
+@router.delete("/delete-professor/{id}", status_code=204)
+async def delete_professor(id: int):
     async with in_transaction():
         try:
             await ProfessorService.delete(id)

@@ -6,21 +6,21 @@ from fastapi import HTTPException, status
 from app.models.unigrande import (Aluno, Curso, Disciplina, Historico,
                                   Matricula, Matriz, PeriodoLetivo, Professor,
                                   Turma)
-from ..schemas.unigrande import (AlunoCreate, AlunoResponse, AlunoSummary,
-                                 AlunoUpdate, CursoCreate, CursoResponse,
-                                 CursoSummary, CursoUpdate, DisciplinaCreate,
-                                 DisciplinaResponse, DisciplinaSummary,
-                                 DisciplinaUpdate, HistoricoCreate,
-                                 HistoricoResponse, HistoricoUpdate,
-                                 MatriculaCreate, MatriculaResponse,
-                                 MatriculaUpdate, MatrizCreate,
-                                 MatrizResponse, MatrizUpdate,
-                                 PeriodoLetivoCreate, PeriodoLetivoResponse,
-                                 PeriodoLetivoSummary, PeriodoLetivoUpdate,
-                                 ProfessorCreate, ProfessorResponse,
-                                 ProfessorSummary, ProfessorUpdate,
-                                 TurmaCreate, TurmaResponse, TurmaSummary,
-                                 TurmaUpdate)
+from app.schemas.unigrande import (AlunoCreate, AlunoResponse, AlunoSummary,
+                                   AlunoUpdate, CursoCreate, CursoResponse,
+                                   CursoSummary, CursoUpdate, DisciplinaCreate,
+                                   DisciplinaResponse, DisciplinaSummary,
+                                   DisciplinaUpdate, HistoricoCreate,
+                                   HistoricoResponse, HistoricoUpdate,
+                                   MatriculaCreate, MatriculaResponse,
+                                   MatriculaUpdate, MatrizCreate,
+                                   MatrizResponse, MatrizUpdate,
+                                   PeriodoLetivoCreate, PeriodoLetivoResponse,
+                                   PeriodoLetivoSummary, PeriodoLetivoUpdate,
+                                   ProfessorCreate, ProfessorResponse,
+                                   ProfessorSummary, ProfessorUpdate,
+                                   TurmaCreate, TurmaResponse, TurmaSummary,
+                                   TurmaUpdate)
 
 
 # =========================
@@ -164,10 +164,19 @@ class CursoService:
     async def update(id_: int, payload: CursoUpdate) -> Curso:
         obj = await _ensure_exists(Curso, id=id_)
         data = payload.model_dump(exclude_unset=True)
+
+        # Se coordenador_id veio não-nulo, valide existência
         if "coordenador_id" in data and data["coordenador_id"] is not None:
             await _ensure_exists(Professor, id=data["coordenador_id"])
+
+        # Se explicitamente vier null, limpe a FK (deixe sem coordenador)
+        if "coordenador_id" in data and data["coordenador_id"] is None:
+            obj.coordenador_id = None
+            del data["coordenador_id"]
+
         for k, v in data.items():
             setattr(obj, k, v)
+
         await obj.save()
         return obj
 
@@ -177,8 +186,12 @@ class CursoService:
         await obj.delete()
 
     @staticmethod
-    async def get(id_: int) -> Curso:
-        return await _ensure_exists(Curso, id=id_)
+    async def get(id_: int):
+        obj = await Curso.get_or_none(id=id_).prefetch_related("coordenador")
+        if not obj:
+            raise HTTPException(
+                status_code=404, detail="Curso não encontrado.")
+        return obj
 
     @staticmethod
     async def list_all():
@@ -455,6 +468,16 @@ class AlunoService:
     @staticmethod
     async def list_all():
         return await Aluno.all().prefetch_related("curso")
+
+    @staticmethod
+    async def list_paginated(limit: int = 10, offset: int = 0):
+        """
+        Retorna (rows, total) para paginação.
+        """
+        qs = Aluno.all().offset(offset).limit(limit).prefetch_related("curso")
+        rows = await qs
+        total = await Aluno.all().count()
+        return rows, total
 
     @staticmethod
     async def response(obj: Aluno) -> AlunoResponse:

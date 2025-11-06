@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Response, status
-from tortoise.exceptions import (DoesNotExist, IntegrityError,
-                                 MultipleObjectsReturned)
+from tortoise.exceptions import DoesNotExist, MultipleObjectsReturned
 from tortoise.transactions import in_transaction
 
 from app.auth.utils import setup_logger
@@ -19,6 +18,14 @@ router = APIRouter()
 
 # =============== util de erro ===============
 async def error_500(e: Exception):
+    """
+    Converte exceções inesperadas em HTTP 500 para respostas consistentes no Swagger.
+
+    Se `e` já for uma HTTPException (por exemplo, 404 lançado no Service),
+    apenas repassa a exceção sem alterá-la.
+    """
+    if isinstance(e, HTTPException):
+        raise e
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail=f"Ocorreu um erro inesperado: {str(e)}",
@@ -28,14 +35,34 @@ async def error_500(e: Exception):
 # ----------------------------------------------------------------------
 # Curso
 # ----------------------------------------------------------------------
-@router.post("/create-curso", response_model=CursoResponse, status_code=201)
+@router.post(
+    "/create-curso",
+    response_model=CursoResponse,
+    status_code=201,
+    summary="Cria um novo curso",
+    description="""
+        Cria um **curso**.
+
+        # Observações
+        - O campo `coordenador_id` é **opcional**.  
+        - Caso informado, deve referenciar um `Professor.id` válido (FK).
+
+        # Exemplo de payload
+        ```json
+            {
+                "id": 26,
+                "nome": "Ciência da Computação - Tarde/Noite",
+                "total_creditos": 200,
+                "coordenador_id": 1410
+            }
+        ```
+        """,
+)
 async def create_curso(payload: CursoCreate):
     async with in_transaction():
         try:
             obj = await CursoService.create(payload)
             return await CursoService.response(obj)
-        except IntegrityError as e:
-            raise HTTPException(409, f"Restrição de integridade: {e}")
         except Exception as e:
             await error_500(e)
 
@@ -47,6 +74,8 @@ async def get_curso(id: int):
         return await CursoService.response(obj)
     except (DoesNotExist, MultipleObjectsReturned):
         raise HTTPException(404, "Curso não encontrado")
+    except HTTPException as e:
+        raise e
     except Exception as e:
         await error_500(e)
 
@@ -54,8 +83,8 @@ async def get_curso(id: int):
 @router.get("/listar-cursos", response_model=List[CursoResponse])
 async def list_cursos():
     try:
-        rows = await CursoService.list_all()
-        return [await CursoService.response(x) for x in rows]
+        lista_cursos = await CursoService.list_all()
+        return [await CursoService.response(curso) for curso in lista_cursos]
     except Exception as e:
         await error_500(e)
 
